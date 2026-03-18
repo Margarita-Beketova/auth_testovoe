@@ -1,0 +1,65 @@
+[
+  {
+    "model": "accounts.AccessRule",
+    "pk": 1,
+    "fields": {
+      "role": 1,
+      "permission_code": "order:read",
+      "description": "Просмотр заказов"
+    }
+  },
+  {
+    "model": "accounts.AccessRule",
+    "pk": 2,
+    "fields": {
+      "role": 1,
+      "permission_code": "order:create",
+      "description": "Создание заказов"
+    }
+  },
+  {
+    "model": "accounts.AccessRule",
+    "pk": 3,
+    "fields": {
+      "role": 1,
+      "permission_code": "product:read",
+      "description": "Просмотр товаров"
+    }
+  },
+  {
+    "model": "accounts.AccessRule",
+    "pk": 4,
+    "fields": {
+      "role": 1,
+      "permission_code": "product:edit",
+      "description": "Редактирование товаров"
+    }
+  },
+  {
+    "model": "accounts.AccessRule",
+    "pk": 5,
+    "fields": {
+      "role": 2,
+      "permission_code": "order:create",
+      "description": "Создание заказов для пользователей"
+    }
+  },
+  {
+    "model": "accounts.AccessRule",
+    "pk": 6,
+    "fields": {
+      "role": 2,
+      "permission_code": "product:read",
+      "description": "Просмотр товаров для пользователей"
+    }
+  },
+  {
+    "model": "accounts.AccessRule",
+    "pk": 7,
+    "fields": {
+      "role": 3,
+      "permission_code": "product:read",
+      "description": "Просмотр товаров для гостей"
+    }
+  }
+]

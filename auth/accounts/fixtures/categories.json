@@ -1,0 +1,38 @@
+[
+  {
+    "model": "accounts.Category",
+    "pk": 1,
+    "fields": {
+      "name": "Суккуленты",
+      "slug": "succulents",
+      "description": "Толстолистные растения, запасающие воду"
+    }
+  },
+  {
+    "model": "accounts.Category",
+    "pk": 2,
+    "fields": {
+      "name": "Ароидные",
+      "slug": "aroids",
+      "description": "Растения семейства Ароидные (Araceae)"
+    }
+  },
+  {
+    "model": "accounts.Category",
+    "pk": 3,
+    "fields": {
+      "name": "Пальмы",
+      "slug": "palms",
+      "description": "Комнатные пальмы и пальмоподобные растения"
+    }
+  },
+  {
+    "model": "accounts.Category",
+    "pk": 4,
+    "fields": {
+      "name": "Аксессуары",
+      "slug": "accessories",
+      "description": "Горшки, удобрения, инструменты для ухода"
+    }
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "model": "accounts.Role",
+    "pk": 1,
+    "fields": {
+      "name": "admin",
+      "slug": "admin",
+      "description": "Администратор магазина",
+      "is_system": true
+    }
+  },
+  {
+    "model": "accounts.Role",
+    "pk": 2,
+    "fields": {
+      "name": "user",
+      "slug": "user",
+      "description": "Обычный пользователь",
+      "is_system": true
+    }
+  },
+  {
+    "model": "accounts.Role",
+    "pk": 3,
+    "fields": {
+      "name": "guest",
+      "slug": "guest",
+      "description": "Гость (неавторизованный пользователь)",
+      "is_system": true
+    }
+  }
+]

@@ -1,0 +1,54 @@
+[
+  {
+    "model": "accounts.Product",
+    "pk": 1,
+    "fields": {
+      "name": "Алоэ Вера",
+      "slug": "aloe-vera",
+      "description": "Лечебное суккулентное растение",
+      "price": "1500.00",
+      "stock": 10,
+      "category": 1,
+      "care_instructions": "Яркий свет, редкий полив"
+    }
+  },
+  {
+    "model": "accounts.Product",
+    "pk": 2,
+    "fields": {
+      "name": "Монстера деликатесная",
+      "slug": "monstera-deliciosa",
+      "description": "Крупное ароидное растение с перфорированными листьями",
+      "price": "3500.00",
+      "stock": 5,
+      "category": 2,
+      "care_instructions": "Рассеянный свет, умеренный полив"
+    }
+  },
+  {
+    "model": "accounts.Product",
+    "pk": 3,
+    "fields": {
+      "name": "Финиковая пальма",
+      "slug": "date-palm",
+      "description": "Комнатная пальма с перистыми листьями",
+      "price": "4500.00",
+      "stock": 3,
+      "category": 3,
+      "care_instructions": "Солнечный подоконник, регулярный полив"
+    }
+  },
+  {
+    "model": "accounts.Product",
+    "pk": 4,
+    "fields": {
+      "name": "Керамический горшок 20 см",
+      "slug": "ceramic-pot-20cm",
+      "description": "Красивый горшок для суккулентов",
+      "price": "800.00",
+      "stock": 20,
+      "category": 4,
+      "care_instructions": ""
+    }
+  }
+]

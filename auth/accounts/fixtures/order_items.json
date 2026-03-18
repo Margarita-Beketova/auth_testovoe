@@ -1,0 +1,42 @@
+[
+  {
+    "model": "accounts.OrderItem",
+    "pk": 1,
+    "fields": {
+      "order": 1,
+      "product": 1,
+      "quantity": 1,
+      "unit_price": "1500.00"
+    }
+  },
+  {
+    "model": "accounts.OrderItem",
+    "pk": 2,
+    "fields": {
+      "order": 1,
+      "product": 2,
+      "quantity": 1,
+      "unit_price": "3500.00"
+    }
+  },
+  {
+    "model": "accounts.OrderItem",
+    "pk": 3,
+    "fields": {
+      "order": 1,
+      "product": 4,
+      "quantity": 1,
+      "unit_price": "800.00"
+    }
+  },
+  {
+    "model": "accounts.OrderItem",
+    "pk": 4,
+    "fields": {
+      "order": 2,
+      "product": 1,
+      "quantity": 1,
+      "unit_price": "1500.00"
+    }
+  }
+]
