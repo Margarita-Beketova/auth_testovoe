@@ -6,7 +6,7 @@ class Role(models.Model):
     slug = models.SlugField(max_length=150, unique=True, verbose_name='Идентификатор')
     description = models.TextField(blank=True, verbose_name='Описание')
     is_system = models.BooleanField(default=False, verbose_name='Системная')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+   
 
     class Meta:
         verbose_name = 'Роль'
