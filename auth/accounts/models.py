@@ -39,7 +39,7 @@ class AccessRule(models.Model):
 
     
 
-class User(models.Model):
+class CustomUser(models.Model):
     first_name = models.CharField(max_length=150, blank=False, null=False, verbose_name='Имя')
     last_name = models.CharField(max_length=150, blank=False, null=False, verbose_name='Фамилия')
     email = models.EmailField(unique=True, verbose_name='Email') 
@@ -52,6 +52,18 @@ class User(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата регистрации')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     last_login = models.DateTimeField(null=True, blank=True, verbose_name='Последний вход')
+
+    @property
+    def is_anonymous(self):
+        return False
+    
+    @property
+    def is_authenticated(self):
+        return True
+    
+    @property
+    def is_admin(self):
+        return self.role and self.role.slug == 'admin'
 
     
     def has_permission(self, permission_code):
@@ -147,7 +159,7 @@ class Order(models.Model):
     ]
 
     user = models.ForeignKey(
-        User,
+        CustomUser,
         on_delete=models.CASCADE,
         related_name='orders',
         verbose_name='Пользователь'

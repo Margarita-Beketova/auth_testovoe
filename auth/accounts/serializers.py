@@ -1,12 +1,14 @@
 import bcrypt
 import jwt
-from datetime import datetime, timedelta
+import uuid
+from datetime import timedelta
 from django.conf import settings
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from rest_framework import serializers
-from .models import User
+from .models import CustomUser, AccessRule, Role
+from .jwt_handler import JWTHandler
 
 
 class RegisterSerializer(serializers.Serializer):
@@ -24,7 +26,7 @@ class RegisterSerializer(serializers.Serializer):
         except ValidationError:
             raise serializers.ValidationError("Некорректный формат email.")
         
-        if User.objects.filter(email=value).exists():
+        if CustomUser.objects.filter(email=value).exists():
             raise serializers.ValidationError("Пользователь с таким email уже существует.")
         return value
 
@@ -49,14 +51,14 @@ class RegisterSerializer(serializers.Serializer):
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
         
-        user = User.objects.create(
+        user = CustomUser.objects.create(
             **validated_data,
             password_hash=hashed_password
         )
         return user
 
     def to_representation(self, instance):
-        token = self._generate_jwt_token(instance)
+        token = JWTHandler.generate_token(instance, 'access')
         return {
             'id': instance.id,
             'email': instance.email,
@@ -66,15 +68,8 @@ class RegisterSerializer(serializers.Serializer):
             'token': token
         }
 
-    def _generate_jwt_token(self, user):
-        payload = {
-            'user_id': user.id,
-            'email': user.email,
-            'exp': timezone.now() + timedelta(hours=24),
-            'iat': timezone.now()
-        }
-        token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-        return token.decode('utf-8') if isinstance(token, bytes) else token
+    
+
 
 
 class LoginSerializer(serializers.Serializer):
@@ -87,8 +82,8 @@ class LoginSerializer(serializers.Serializer):
 
         if email and password:
             try:
-                user = User.objects.get(email=email)
-            except User.DoesNotExist:
+                user = CustomUser.objects.get(email=email)
+            except CustomUser.DoesNotExist:
                 raise serializers.ValidationError("Пользователь с таким email не найден.")
             
             if not user.is_active:
@@ -103,15 +98,100 @@ class LoginSerializer(serializers.Serializer):
         
         return data
 
-    def _generate_jwt_token(self, user):
-        payload = {
-            'user_id': user.id,
-            'email': user.email,
-            'exp': datetime.utcnow() + timedelta(hours=24),
-            'iat': datetime.utcnow()
-        }
-        token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-        return token.decode('utf-8') if isinstance(token, bytes) else token
-
+  
     def get_token(self):
-        return self._generate_jwt_token(self.validated_data['user'])
+        return JWTHandler.generate_token(
+            self.validated_data['user'],
+            'access'
+        )
+    
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=False)
+    username = serializers.CharField(max_length=150, required=False)
+    first_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
+    last_name = serializers.CharField(max_length=150, required=False, allow_blank=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ['email', 'username', 'first_name', 'last_name']
+
+    def validate_email(self, value):
+        if CustomUser.objects.filter(email=value).exclude(id=self.instance.id).exists():
+            raise serializers.ValidationError("Пользователь с таким email уже существует.")
+        return value
+
+    def update(self, instance, validated_data):
+        instance.email = validated_data.get('email', instance.email)
+        instance.username = validated_data.get('username', instance.username)
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.save()
+        return instance
+
+
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = ['id', 'name']
+
+class AccessRuleSerializer(serializers.ModelSerializer):
+    role = RoleSerializer(read_only=True)
+    role_id = serializers.PrimaryKeyRelatedField(
+        queryset=Role.objects.all(),
+        source='role',
+        write_only=True,
+        help_text='ID роли'
+    )
+
+    class Meta:
+        model = AccessRule
+        fields = [
+            'id',
+            'role',
+            'role_id',
+            'permission_code',
+            'description'
+        ]
+        read_only_fields = ['role']
+
+    def validate_permission_code(self, value):
+        """Валидация формата permission_code: объект.действие"""
+        if '.' not in value:
+            raise serializers.ValidationError(
+                'Код разрешения должен содержать точку в формате: объект.действие (например: user.view)'
+            )
+
+        parts = value.split('.')
+        if len(parts) != 2:
+            raise serializers.ValidationError(
+                'Код разрешения должен быть в формате: объект.действие'
+            )
+
+        resource, action = parts
+        if not resource or not action:
+            raise serializers.ValidationError(
+                'Объект и действие не могут быть пустыми'
+            )
+
+        
+        allowed_actions = ['view', 'edit', 'create', 'delete']
+        if action not in allowed_actions:
+            raise serializers.ValidationError(
+                f'Действие должно быть одним из: {", ".join(allowed_actions)}'
+            )
+
+        return value
+
+    def create(self, validated_data):
+        return AccessRule.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        """Обновление существующего правила"""
+        instance.role = validated_data.get('role', instance.role)
+        instance.permission_code = validated_data.get('permission_code', instance.permission_code)
+        instance.description = validated_data.get('description', instance.description)
+        instance.save()
+        return instance

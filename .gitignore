@@ -50,3 +50,4 @@ static/
 *.secret
 .env
 secrets.yml
+.temp

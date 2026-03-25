@@ -1,26 +1,21 @@
 import jwt
 from django.conf import settings
-from django.contrib.auth.models import AnonymousUser
 from django.http import JsonResponse
 from django.utils.deprecation import MiddlewareMixin
-from .models import User 
-from django.conf import settings
-
+from .models import CustomUser
+from django.contrib.auth.models import AnonymousUser
 
 class JWTMiddleware(MiddlewareMixin):
-    """
-    Middleware для проверки JWT-токена в заголовке Authorization.
-    Извлекает токен, проверяет подпись и срок действия, находит пользователя и присваивает его request.user.
-    """
+
 
     def process_request(self, request):
         """
-        Обрабатывает запрос: проверяет JWT-токен и устанавливает request.user.
+        проверяет JWT-токен и устанавливает request.user.
         """
         auth_header = request.headers.get('Authorization')
 
         if not auth_header:
-            request.user = AnonymousUser()
+            request.user = AnonymousUser()  
             return None
 
         if not auth_header.startswith('Bearer '):
@@ -30,14 +25,9 @@ class JWTMiddleware(MiddlewareMixin):
             )
 
         try:
-        
             token = auth_header.split(' ', 1)[1]
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
 
-           
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256']           
-)
-
-           
             user_id = payload.get('user_id')
             if not user_id:
                 return JsonResponse(
@@ -45,17 +35,15 @@ class JWTMiddleware(MiddlewareMixin):
                     status=401
                 )
 
-           
-            
             try:
-                user = User.objects.get(id=user_id)
+                user = CustomUser.objects.get(id=user_id)
                 if not user.is_active:
                     return JsonResponse(
-                    {'detail': 'Account is deactivated'},
-                     status=401
+                        {'detail': 'Account is deactivated'},
+                        status=401
                     )
                 request.user = user
-            except User.DoesNotExist:
+            except CustomUser.DoesNotExist:
                 return JsonResponse(
                     {'detail': 'User not found'},
                     status=401
@@ -76,6 +64,5 @@ class JWTMiddleware(MiddlewareMixin):
                 {'detail': f'Authentication error: {str(e)}'},
                 status=401
             )
-
 
         return None
